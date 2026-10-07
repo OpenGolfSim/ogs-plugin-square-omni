@@ -44,7 +44,7 @@ const OMNI_CLUBS = {
 
 const MPS_TO_MPH = 2.23694;
 const HEARTBEAT_MS = 5000;
-const NAME_PATTERN = /^SquareGolf/i;
+const NAME_PATTERN = /^SquareGolf|^SGO/i;
 
 const scope = {
   bt: null,

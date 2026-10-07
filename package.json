@@ -5,6 +5,7 @@
   "plugin": {
     "title": "Square Omni",
     "type": "launch",
-    "requiresPairing": "bluetooth"
+    "requiresPairing": "bluetooth",
+    "bluetoothMatch": "square|bluez|sgo"
   }
 }
