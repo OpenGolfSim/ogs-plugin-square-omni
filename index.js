@@ -21,25 +21,25 @@ const HANDED_RIGHT = 0x00;
 
 // Omni club codes: [club_number, category] (WIRE.md §8). * = unverified upstream.
 const OMNI_CLUBS = {
-  DRIVER: [0x01, 0x00],
-  WOOD3: [0x03, 0x01],
-  WOOD5: [0x05, 0x01], // *
-  WOOD7: [0x07, 0x01], // *
-  HYBRID3: [0x0d, 0x01],
-  HYBRID4: [0x0e, 0x01], // *
-  HYBRID5: [0x0f, 0x01],
-  IRON3: [0x03, 0x02], // *
-  IRON4: [0x04, 0x02],
-  IRON5: [0x05, 0x02],
-  IRON6: [0x06, 0x02],
-  IRON7: [0x07, 0x02],
-  IRON8: [0x08, 0x02],
-  IRON9: [0x09, 0x02],
-  PW: [0x0a, 0x02],
-  GW: [0x0b, 0x02],
-  SW: [0x0c, 0x02],
-  LW: [0x0d, 0x02], // *
-  PUTTER: [0x01, 0x03],
+  DRIVER: { code: [0x01, 0x00], id: 'DR' },
+  WOOD3: { code: [0x03, 0x01], id: '3W' },
+  WOOD5: { code: [0x05, 0x01], id: '5W' },
+  WOOD7: { code: [0x07, 0x01], id: '7W' },
+  HYBRID3: { code: [0x0d, 0x01], id: '3H' },
+  HYBRID4: { code: [0x0e, 0x01], id: '4H' },
+  HYBRID5: { code: [0x0f, 0x01], id: '5H' },
+  IRON3: { code: [0x03, 0x02], id: '3I' },
+  IRON4: { code: [0x04, 0x02], id: '4I' },
+  IRON5: { code: [0x05, 0x02], id: '5I' },
+  IRON6: { code: [0x06, 0x02], id: '6I' },
+  IRON7: { code: [0x07, 0x02], id: '7I' },
+  IRON8: { code: [0x08, 0x02], id: '8I' },
+  IRON9: { code: [0x09, 0x02], id: '9I' },
+  PW: { code: [0x0a, 0x02], id: 'PW' },
+  GW: { code: [0x0b, 0x02], id: 'GW' },
+  SW: { code: [0x0c, 0x02], id: 'SW' },
+  LW: { code: [0x0d, 0x02], id: 'LW' },
+  PUTTER: { code: [0x01, 0x03], id: 'PT' },
 };
 
 const MPS_TO_MPH = 2.23694;
@@ -59,6 +59,7 @@ const scope = {
   heartbeatTimer: null,
   writeChain: Promise.resolve(),
   device: { isConnected: false, isReady: false },
+  currentClub: OMNI_CLUBS.DRIVER
 };
 
 // ---------- helpers ----------
@@ -298,7 +299,7 @@ async function connectToDevice(peripheral) {
     // Session init + arming (SEQUENCE.md §4-5)
     await sendQuery();
     await sendHeartbeat();
-    await sendSelectClub(OMNI_CLUBS.DRIVER);
+    await sendSelectClub(scope.currentClub.code);
     await sendDetectBall(true);
 
     scope.heartbeatTimer = setInterval(sendHeartbeat, HEARTBEAT_MS);
@@ -356,6 +357,11 @@ system.on('exit', async () => {
     logging.error('Error during disconnect', err);
   }
   await stopScan();
+});
+
+shotData.on('club', (club) => {
+  scope.currentClub = Object.values(OMNI_CLUBS).find((c) => c.id === club.id) || OMNI_CLUBS.DRIVER;
+  if (scope.discoveredCharacteristics.command) sendSelectClub(scope.currentClub.code, 0);
 });
 
 (async () => {
