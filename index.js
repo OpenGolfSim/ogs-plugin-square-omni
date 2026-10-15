@@ -361,7 +361,7 @@ system.on('exit', async () => {
 
 shotData.on('club', (club) => {
   scope.currentClub = Object.values(OMNI_CLUBS).find((c) => c.id === club.id) || OMNI_CLUBS.DRIVER;
-  if (scope.discoveredCharacteristics.command) sendSelectClub(scope.currentClub.code, 0);
+  if (scope.chars.cmd) sendSelectClub(scope.currentClub.code);
 });
 
 (async () => {
