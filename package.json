@@ -1,6 +1,6 @@
 {
   "name": "ogs-plugin-square-omni",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Connects to a Square Golf Omni over Bluetooth LE and sends shot data to OpenGolfSim",
   "plugin": {
     "title": "Square Omni",
