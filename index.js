@@ -18,6 +18,7 @@ const CMD = {
 
 const SPIN_ADVANCED = 0x11;
 const HANDED_RIGHT = 0x00;
+const HANDED_LEFT = 0x01;
 
 // Omni club codes: [club_number, category] (WIRE.md §8). * = unverified upstream.
 const OMNI_CLUBS = {
@@ -59,7 +60,8 @@ const scope = {
   heartbeatTimer: null,
   writeChain: Promise.resolve(),
   device: { isConnected: false, isReady: false },
-  currentClub: OMNI_CLUBS.DRIVER
+  currentClub: OMNI_CLUBS.DRIVER,
+  currentHandedness: HANDED_RIGHT
 };
 
 // ---------- helpers ----------
@@ -299,7 +301,7 @@ async function connectToDevice(peripheral) {
     // Session init + arming (SEQUENCE.md §4-5)
     await sendQuery();
     await sendHeartbeat();
-    await sendSelectClub(scope.currentClub.code);
+    await sendSelectClub(scope.currentClub.code, scope.currentHandedness);
     await sendDetectBall(true);
 
     scope.heartbeatTimer = setInterval(sendHeartbeat, HEARTBEAT_MS);
@@ -361,7 +363,8 @@ system.on('exit', async () => {
 
 shotData.on('club', (club) => {
   scope.currentClub = Object.values(OMNI_CLUBS).find((c) => c.id === club.id) || OMNI_CLUBS.DRIVER;
-  if (scope.chars.cmd) sendSelectClub(scope.currentClub.code);
+  scope.currentHandedness = club.handedness ?? HANDED_RIGHT;
+  if (scope.chars.cmd) sendSelectClub(scope.currentClub.code, scope.currentHandedness);
 });
 
 (async () => {
